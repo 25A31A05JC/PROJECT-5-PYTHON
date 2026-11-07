@@ -1,0 +1,49 @@
+def schedule(jobs, method, limit):
+    if method == "Greedy Priority":
+        jobs = sorted(jobs, key=lambda x: (-x[3], x[2]))
+    elif method == "EDF":
+        jobs = sorted(jobs, key=lambda x: x[2])
+
+    time = 0
+    done, missed = [], []
+
+    for job in jobs:
+        job_id, duration, deadline, priority = job
+        finish = time + duration
+
+        if finish <= deadline and finish <= limit:
+            done.append((job_id, time, finish, deadline, priority))
+            time = finish
+        else:
+            missed.append(job_id)
+
+    print(f"\n--- {method} ---")
+    print("Job\tStart\tFinish\tDeadline\tPriority")
+
+    for item in done:
+        print(*item, sep="\t")
+
+    print("Missed jobs:", missed if missed else "None")
+    print("Time used:", time, "minutes")
+    print("Utilization:", round(time / limit * 100, 2), "%")
+
+
+n = int(input("Enter number of jobs: "))
+jobs = []
+
+for i in range(n):
+    print("\nJob", i + 1)
+    job_id = input("Job ID: ")
+    duration = int(input("Duration: "))
+    deadline = int(input("Deadline: "))
+    priority = int(input("Priority: "))
+    jobs.append((job_id, duration, deadline, priority))
+
+limit = int(input("Available hospital time: "))
+
+if limit <= 0 or any(j[1] <= 0 or j[2] < 0 for j in jobs):
+    print("Enter valid positive time and duration values.")
+else:
+    schedule(jobs[:], "Greedy Priority", limit)
+    schedule(jobs[:], "FCFS", limit)
+    schedule(jobs[:], "EDF", limit)
